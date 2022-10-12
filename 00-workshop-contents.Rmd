@@ -11,23 +11,21 @@ Each module of the workshop focuses on a different subset of functions, with rel
 
 - `"01-intro-to-data-validation.Rmd"` (The `agent`, validation fns, interrogation/reports)
 
-- `"02-post-interrogation-work.Rmd"` (What else can we do post-interrogation?)
+- `"01z-PRACTICE-01.Rmd"` (Practice with functions from module `01`)
 
-- `"02z-PRACTICE-01-02.Rmd"` (Practice with functions from modules `01` and `02`)
+- `"02-scan-your-data.Rmd"` (Looking at your data with `scan_data()`)
 
-- `"03-scan-your-data.Rmd"` (Looking at your data with `scan_data`)
+- `"03-expect-test-functions.Rmd"` (Using the `expect_*()` and `test_*()` functions)
 
-- `"04-expect-test-functions.Rmd"` (Using the `expect_*()` and `test_*()` functions)
+- `"04-scaling-up-data-validation.Rmd"` (The `multiagent` and its reporting structures)
 
-- `"05-scaling-up-data-validation.Rmd"` (The `multiagent` and its reporting structures)
+- `"04z-PRACTICE-02-03-04.Rmd"` (Practice with functions from modules `02`, `03`, and `04`)
 
-- `"05z-PRACTICE-03-04.Rmd"` (Practice with functions from modules `03`, `04`, and `05`)
+- `"05-intro-to-data-documentation.Rmd"` (The `informant` and describing your data)
 
-- `"06-intro-to-data-documentation.Rmd"` (The `informant` and describing your data)
+- `"06-getting-deeper-into-data-documenting.Rmd"` (Using snippets and text tricks)
 
-- `"07-getting-deeper-into-data-documenting.Rmd"` (Using snippets and text tricks)
-
-- `"07z-PRACTICE-05-06.Rmd"` (Practice with functions from modules `06` and `07`)
+- `"06z-PRACTICE-05-06.Rmd"` (Practice with functions from modules `05` and `06`)
 
 You can navigate to any of these and modify the code within the self-contained **R Markdown** code chunks. Entire **R Markdown** files can be knit to HTML, where a separate window will show the rendered document.
 
