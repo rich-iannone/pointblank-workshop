@@ -35,5 +35,5 @@ install.packages("pointblank")
 For this workshop, however, we are going to use the development version of **pointblank** and install it from GitHub with `devtools::install_github()`.
 
 ``` r
-devtools::install_github("rstudio/pointblank")
+devtools::install_github("rich-iannone/pointblank")
 ```
