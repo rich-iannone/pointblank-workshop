@@ -1,0 +1,364 @@
+---
+title: "Introduction to Data Validation, pointblank Style"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pointblank)
+library(tidyverse)
+library(blastula)
+```
+
+## Intro
+
+A common workflow for data validation in **pointblank** involves three basic components:
+
+- the creation of an 'agent' (this is the main data collection and reporting object)
+- the declaration of validation steps using validation functions (as many as you need)
+- the interrogation of the data (here the agent finally carries out the validation tasks)
+
+We always start with `create_agent()` and define how the data can be reached and also provide some basic rules about how an interrogation of how that data should eventually be carried out. While we are giving the agent some default behavior, we can override some of this on a step-by-step basis when declaring our validation steps. We always end with `interrogate()` and that function carries out the work of validating the data and generating the all-important reporting. 
+
+
+### A simple data validation on a small dataset called `small_table`
+
+The package contains a few datasets. A really small one for experimenting is called `small_table`:
+
+```{r paged.print=FALSE}
+pointblank::small_table
+```
+
+Let's create an `agent`, give it the `small_table`, and look at the report.
+
+```{r}
+# Create the agent with `create_agent()`; the `tbl` is given to the agent
+agent_1 <- 
+  create_agent(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Workshop agent No. 1",
+  )
+
+# Printing the `agent` will print the report with the default options
+agent_1
+```
+
+Okay. Let's provide a few validation functions.
+
+```{r}
+agent_1 <-
+  agent_1 %>%
+  col_vals_gte(columns = d, value = 0) %>%
+  col_is_logical(columns = e) %>%
+  col_is_character(columns = c(b, f)) %>%
+  col_is_numeric(columns = d) %>%
+  col_vals_in_set(columns = f, set = c("low", "mid", "high")) %>%
+  rows_distinct()
+
+agent_1
+```
+
+The report contains the information about the validation steps but many of the table cells have no data. That area is the interrogation data, and, we haven't yet used the `interrogate()` function. Let's use it now.
+
+```{r}
+agent_1 <- agent_1 %>% interrogate()
+
+agent_1
+```
+
+Now, we see a report we can use! Let's go over each of the columns and understand what they mean.
+
+- `STEP`: the name of the validation function used for the validation step and
+the step number.
+
+- `COLUMNS`: the names of the target columns used in the validation step (if applicable).
+
+- `VALUES`: the values used in the validation step, where applicable; this could be as literal values, as column names, an expression, etc.
+
+- `TBL`: indicates whether any there were any changes to the target table just prior to interrogation. A rightward arrow from a small circle indicates that there was no mutation of the table. An arrow from a circle to a purple square indicates that 'preconditions' were used to modify the target table. An arrow from a circle to a half-filled circle indicates that the target table has been 'segmented'.
+
+- `EVAL`: a symbol that denotes the success of interrogation evaluation for each step. A checkmark indicates no issues with evaluation. A warning sign indicates that a warning occurred during evaluation. An explosion symbol indicates that evaluation failed due to an error. Hover over the symbol for details on each condition.
+
+- `UNITS`: the total number of test units for the validation step
+
+- `PASS`: on top is the absolute number of passing test units and below that is the fraction of passing test units over the total number of test units.
+
+- `FAIL`: on top is the absolute number of failing test units and below that is the fraction of failing test units over the total number of test units.
+
+- `W`, `S`, `N`: indicators that show whether the *warn*, *stop*, or *notify* states were entered; unset states appear as dashes, states that are set with thresholds appear as unfilled circles when not entered and filled when thresholds are exceeded (colors for `W`, `S`, and `N` are amber, red, and blue)
+
+- `EXT`: a column that provides buttons to download data extracts as CSV files for row-based validation steps having failing test units. Buttons only appear when there is data to collect.
+
+We see nothing in the `W`, `S`, and `N` columns. This is because we have to explicitly set thresholds for those to be active. We'll do that next...
+
+
+### Data validation with threshold levels
+
+We often should think about what's tolerable in terms of data quality and implement that into our reporting. Let's set proportional failure thresholds to the `warn`, `stop`, and `notify` states using the `action_levels()` function.
+
+```{r}
+# Create an `action_levels` object with the namesake function.
+al <- 
+  action_levels(
+      warn_at = 0.15,
+      stop_at = 0.25,
+    notify_at = 0.35
+  )
+
+# This can be printed for inspection
+al
+```
+
+We are using threshold fractions of test units (between `0` and `1`). For `0.15`, this means that if 15% percent of the test units are found to *fail* (i.e., don't meet the expectation), then the designated failure state is entered.
+
+Absolute values starting from `1` can be used instead, and this constitutes an absolute failure threshold (e.g., `10` means that if `10` of the test units are found to fail, the failure state is entered).
+
+What are test units? They make up the individual tests for a validation step. They will vary by the validation function used but, in simple terms, a validation function that validates values in a column will have the number of test units equal to the number of rows. A validation function that validates a column type will have exactly one test unit. This is always given in the `UNITS` column of the reporting table.
+
+Let’s use the `action_levels` object in a new validation process (based on the same `small_table` dataset). We'll make it so the validation functions used will result in more failing test units.
+
+```{r}
+agent_2 <-
+  create_agent(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Workshop agent No. 2",
+    actions = al
+  ) %>%
+  col_is_posix(columns = date_time) %>%
+  col_vals_lt(columns = a, value = 7) %>%
+  col_vals_regex(columns = b, regex = "^[0-9]-[a-w]{3}-[2-9]{3}$") %>%
+  col_vals_between(columns = d, left = 0, right = 4000) %>%
+  col_is_logical(columns = e) %>%
+  col_is_character(columns = c(b, f)) %>%
+  col_vals_lt(columns = d, value = 9600) %>%
+  col_vals_in_set(columns = f, set = c("low", "mid")) %>%
+  rows_distinct() %>%
+  interrogate()
+
+agent_2
+```
+
+Some notes:
+
+- the thresholds for the `warn`, `stop`, and `notify` states are presented in the table header; these are defaults for every validation step
+- we now have some indicators of failure thresholds being met (look at the `W`, `S`, and `N` columns); steps `2`, `3`, `9`, and `10` have at least the `warn` condition
+- it's possible to have test unit failures but not enter a `warn` state (look at steps `4` and `8`); they still provide CSVs for failed rows but the `W` indicator circle isn't filled in
+
+How you set the default thresholds will depend on how strict the measure for data quality is. There might be certain validation steps where we'd like to be more stringent. For the next validation process we will apply the `action_levels()` function to individual steps, overriding the default setting. 
+
+```{r}
+agent_3 <-
+  create_agent(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Workshop agent No. 3",
+    actions = al
+  ) %>%
+  col_is_posix(columns = date_time) %>%
+  col_vals_lt(columns = a, value = 7) %>%
+  col_vals_regex(columns = b, regex = "^[0-9]-[a-w]{3}-[2-9]{3}$") %>%
+  col_vals_between(
+    columns = d,
+    left = 0,
+    right = 4000,
+    actions = action_levels( # Setting `actions` at the individual
+      warn_at = 1,           # validation step. This time, using absolute
+      stop_at = 3,           # threshold values (i.e., a single test unit
+      notify_at = 5          # failing triggers the `warn` state
+    )
+  ) %>%
+  col_is_logical(columns = e) %>%
+  col_is_character(columns = c(b, f)) %>%
+  col_vals_lt(columns = d, value = 9600) %>%
+  col_vals_in_set(columns = f, set = c("low", "mid")) %>%
+  rows_distinct() %>%
+  interrogate()
+
+agent_3
+```
+
+### Data extracts for failed rows
+
+Those CSV buttons are useful for sharing the report with others since they don't even need to know R to get some use from those extracts. For the person familiar with R and **pointblank**, it is possible to get data frames for the failed rows (per validation step).
+
+We can use the `get_data_extracts()` function to obtain a list of data frames, or, use the `i` argument to get a data frame available for a specific step. Not all steps will have associated data frames. Also, not all validation functions will produce data frames here (they need to check values in columns).
+
+Let's use `get_data_extracts()` on `agent_3`.
+
+```{r paged.print=FALSE}
+get_data_extracts(agent = agent_3)
+```
+
+The list components are named for the validation steps that have data extracts (i.e., filtered rows where test unit failures occurred). Let's get an individual data extract from step `9` (the `col_vals_in_set()` step, which looked at column `f`):
+
+```{r paged.print=FALSE}
+get_data_extracts(agent = agent_3, i = 9)
+```
+
+### Getting 'sundered' data back (either 'good' or 'bad' rows)
+
+Sometimes, if your methodology allows for it, you want to use the best part of the input data for something else. With the `get_sundered_data()`, we use provide an agent object that interrogated the data and what we get back could be:
+
+- the 'pass' data piece (rows with no failing test units across all row-based validation functions)
+- the 'fail' data piece (rows with at least one failing test unit across the same series of validations)
+- all the data with a new column that labels each row as passing or failing across validation steps (the labels can be customized).
+
+Let's make new agent and validate `small_table` again.
+
+```{r}
+agent_4 <-
+  create_agent(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Workshop agent No. 4"
+  ) %>%
+  col_vals_gt(columns = d, value = 1000) %>%
+  col_vals_between(
+    columns = c,
+    left = vars(a), right = vars(d), # Using values in columns, not literal vals
+    na_pass = TRUE
+  ) %>%
+  interrogate()
+
+agent_4
+```
+
+Get the sundered data piece that contains only rows that passed both validation steps (this is the default piece). This yields 5 of 13 total rows.
+
+```{r paged.print=FALSE}
+agent_4 %>% get_sundered_data()
+```
+
+Get the complementary data piece: all of those rows that failed either of the two validation steps. This yields 8 of 13 total rows.
+
+```{r paged.print=FALSE}
+agent_4 %>% get_sundered_data(type = "fail")
+```
+
+We can get all of the input data returned with a flag column (called `.pb_combined`). This is done by using `type = "combined"` and that rightmost column will contain `"pass"` and `"fail"` values.
+
+```{r paged.print=FALSE}
+agent_4 %>% get_sundered_data(type = "combined")
+```
+
+The labels can be changed and this is flexible:
+
+```{r paged.print=FALSE}
+agent_4 %>% get_sundered_data(type = "combined", pass_fail = c(TRUE, FALSE))
+```
+
+```{r paged.print=FALSE}
+agent_4 %>% get_sundered_data(type = "combined", pass_fail = 0:1)
+```
+
+### Accessing the plan/interrogation data with `get_agent_x_list()`
+
+The agent's x-list is a record of information that the agent possesses at any given time. The x-list will contain the most complete information after an interrogation has taken place (before then, the data largely reflects the validation plan).
+
+The x-list can be constrained to a particular validation step (by supplying the step number to the `i` argument), or, we can get the information for all validation steps by leaving `i` unspecified.
+
+Let's obtain such a list from `agent_3`, which had 10 validation steps:
+
+```{r paged.print=FALSE}
+# Generate the `x_list` object from `agent_3`
+x_list_3 <- agent_3 %>% get_agent_x_list
+
+# Printing this gives us a console preview
+# of which components are available
+x_list_3
+```
+
+The amount of information contained in here is comprehensive (see `?get_agent_x_list` for a detailed breakdown) but we can provide a few examples.
+
+The number of test units in each validation step.
+
+```{r}
+x_list_3$n
+```
+
+The number of *passing* test units in each validation step.
+
+```{r}
+x_list_3$n_passed
+```
+
+The *fraction* of passing test units in each validation step.
+
+```{r}
+x_list_3$f_passed
+```
+
+The `warn`, `stop`, and `notify` states. We can arrange that in a tibble and use the step numbers (`i`) as well.
+
+```{r  paged.print=FALSE}
+dplyr::tibble(
+  step   = x_list_3$i,
+  warn   = x_list_3$warn,
+  stop   = x_list_3$stop,
+  notify = x_list_3$notify
+)
+```
+
+### Emailing the interrogation report with `email_create()`
+
+We can choose to email the report if the `notify` state is entered. The message can be created with the agent through the `email_create()` function. Here's a useful bit of code that allows for conditional sending.
+
+```{r}
+
+if (any(x_list_3$notify)) {
+  email_create(agent_3) %>%
+    blastula::smtp_send(
+      from = "sender@email.com",
+      to = "recipient@email.com",
+      credentials = creds_file(file = "email_secret")
+    )
+}
+```
+
+Such code might be useful during an automated process where data is periodically checked and failures beyond thresholds require notification.
+
+While `email_create()` will generate the email message body, functions in the **blastula** package are responsible for the sending of that email. For more information on sending HTML email, look at the help article found by using `?blastula::smtp_send`.
+
+### Customizing the interrogation report with `get_agent_report()`
+
+We don't have to fully accept the defaults for a data validation report. Using `get_agent_report()` gives us options.
+
+Here's how you can change the title:
+
+```{r}
+agent_3 %>% get_agent_report(title = "The **3rd** Example")
+```
+
+You can bring the steps that had serious failures up to the top:
+
+```{r}
+agent_3 %>% get_agent_report(arrange_by = "severity")
+```
+
+You can remove those steps that had no failures:
+
+```{r}
+agent_3 %>% get_agent_report(arrange_by = "severity", keep = "fail_states")
+```
+
+You can change the language of the report:
+
+```{r}
+agent_3 %>% get_agent_report(lang = "de")
+```
+
+------
+
+### SUMMARY
+
+1. Data validation in **pointblank** requires the creation of an agent, validation functions, and an interrogation.
+2. The agent creates a report that tries to be informative and easily explainable.
+3. We can set data quality thresholds with `action_levels()`; there can be default DQ thresholds and step-specific thresholds (in both cases, supplied to `actions`).
+4. We can get data extracts pertaining to failing test units in rows of the input dataset (with `get_data_extracts()`).
+5. There is the option to obtain 'sundered' data, which is the input data split by whether cells contained failing test units (with `get_sundered_data()`)
+6. A huge amount of validation data can be accessed with the `get_agent_x_list()` function (useful for programming with the validation results).
+7. We can create an email message using a specialized version of the validation report with `email_create()`; this integrates with the **blastula** R package.
+8. The report can be modified with `get_agent_report()`.
+
