@@ -20,7 +20,6 @@ A common workflow for data validation in **pointblank** involves three basic com
 
 We always start with `create_agent()` and define how the data can be reached and also provide some basic rules about how an interrogation of how that data should eventually be carried out. While we are giving the agent some default behavior, we can override some of this on a step-by-step basis when declaring our validation steps. We always end with `interrogate()` and that function carries out the work of validating the data and generating the all-important reporting. 
 
-
 ### A simple data validation on a small dataset called `small_table`
 
 The package contains a few datasets. A really small one for experimenting is called `small_table`:
@@ -91,7 +90,6 @@ the step number.
 - `EXT`: a column that provides buttons to download data extracts as CSV files for row-based validation steps having failing test units. Buttons only appear when there is data to collect.
 
 We see nothing in the `W`, `S`, and `N` columns. This is because we have to explicitly set thresholds for those to be active. We'll do that next...
-
 
 ### Data validation with threshold levels
 
@@ -305,9 +303,10 @@ dplyr::tibble(
 
 We can choose to email the report if the `notify` state is entered. The message can be created with the agent through the `email_create()` function. Here's a useful bit of code that allows for conditional sending.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 
 if (any(x_list_3$notify)) {
+
   email_create(agent_3) %>%
     blastula::smtp_send(
       from = "sender@email.com",
