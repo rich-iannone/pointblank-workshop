@@ -1,0 +1,90 @@
+---
+title: "Using the `expect_*()` and `test_*()` functions"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pointblank)
+library(tidyverse)
+```
+
+## Intro
+
+Those validation functions used previously with an agent have two sets of variants, taking the forms `expect_*()` and `test_*()`.
+
+The 'expect' prefix indicates that those functions are to be used in a **testthat** unit testing workflow. The 'test' prefix indicates that that set of functions produce logical outputs (`TRUE`/`FALSE`), making them suitable for programming.
+
+### Using the **pointblank** expectation functions
+
+The **testthat** package has collection of functions that begin with `expect_`. The `expect_*()` functions in **pointblank** follow the same convention and can be used in the standard **testthat** workflow (in a `test-<name>.R` file, inside the `tests/testthat` folder). The big difference here is that instead of testing function outputs, we are testing data tables.
+
+Say we wanted to test the values in the `c` column of the `small_table` dataset. Let's look at the values first:
+
+```{r}
+small_table$c
+```
+
+Our expectation is that values can be between `0` and `10` and `NA` values are permitted. We can use `expect_col_vals_between()` for that:
+
+```{r}
+expect_col_vals_between(small_table, columns = c, 0, 10, na_pass = TRUE)
+```
+
+When running this, nothing is returned. The default threshold for error is one test unit (can be changed with the `threshold` argument). If there is an error, that is reported in the console.
+
+```{r, error=TRUE}
+expect_col_vals_between(small_table, columns = c, 0, 7, na_pass = TRUE)
+```
+
+There are 35 `expect_*()` functions, which is a lot. It's actually somewhat overwhelming at first. If you wanted to test your dataset in the **testthat** framework, a nice beginning approach might be to take the dataset and do two things in sequence:
+
+- use the `draft_validation()` function to generate a validation plan with the dataset as the primary input
+- use the `write_testthat_file()` function to create a **testthat** .R file using the agent from the `draft_validation()` file
+
+Let's use the `game_revenue` dataset from the **pointblank** package in this two-step workflow.
+
+```{r eval=FALSE}
+draft_validation(
+  tbl = ~ pointblank::game_revenue,
+  file_name = "game_revenue-validation"
+)
+```
+
+Going into the `"game_revenue-validation.R"` file, the following line was added to the bottom:
+
+```{r eval=FALSE}
+write_testthat_file(agent = agent, name = "game_revenue", path = ".")
+```
+
+Then the entire file was executed, creating the `"test-game_revenue.R"` file. This can be run using the 'Run Tests' button.
+
+### Using the **pointblank** test functions
+
+The collection of `test_*()` functions are used to give us a single `TRUE` or `FALSE`.
+
+Say we wanted a script to error if there are `NA` values in the `date_time` column of the `small_table` dataset. We could write this:
+
+```{r}
+if (!test_col_vals_not_null(small_table, columns = date_time)) {
+  stop("There should not be any `NA` values in the `date_time` column.")
+}
+```
+
+This one does result in an error:
+
+```{r error=TRUE}
+if (
+  !test_col_vals_increasing(small_table, date, allow_stationary = TRUE) ||
+  !test_col_vals_gt(small_table, a, 1)
+  ) {
+  stop("There are problems with `small_table`.")
+}
+```
+
+------
+
+### SUMMARY
+
+1. You can validate tabular data in a **testthat** workflow with the `expect_*()` functions.
+2. The `test_*()` collection of functions can be useful for developing conditional logic in programming contexts.
