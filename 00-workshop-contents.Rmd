@@ -23,11 +23,9 @@ Each module of the workshop focuses on a different subset of functions, with rel
 
 - `"05-intro-to-data-documentation.Rmd"` (The `informant` and describing your data)
 
-- `"06-getting-deeper-into-data-documenting.Rmd"` (Using snippets and text tricks)
+- `"06-getting-deeper-into-documenting-data.Rmd"` (Using snippets and text tricks)
 
 - `"06z-PRACTICE-05-06.Rmd"` (Practice with functions from modules `05` and `06`)
-
-You can navigate to any of these and modify the code within the self-contained **R Markdown** code chunks. Entire **R Markdown** files can be knit to HTML, where a separate window will show the rendered document.
 
 You can navigate to any of these and modify the code within the self-contained **R Markdown** code chunks. Entire **R Markdown** files can be knit to HTML, where a separate window will show the rendered document.
 
