@@ -1,0 +1,239 @@
+---
+title: "Introduction to Data Documentation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pointblank)
+library(tidyverse)
+```
+
+## Intro
+
+A good thing to do often is to document our datasets. We can do this in **pointblank** through the use of several functions that let us define portions of information about a table. This 'info text' can pertain to individual columns, the table as a whole, and whatever additional information makes sense for your organization.
+
+### A simple example using `small_table`
+
+Let's document the `small_table` dataset that's available in **pointblank**. Here's the table once again:
+
+```{r paged.print=FALSE}
+pointblank::small_table
+```
+
+To start the process, the `create_informant()` function is used. This creates an 'informant' object that is quite a bit different from the 'agent' object.
+
+```{r}
+
+# Create the informant
+informant <- 
+  create_informant(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Metadata for the `small_table` dataset."
+  )
+
+# Print to get the information report for the table
+informant
+```
+
+Printing `informant` will show us the automatically-generated information on the `small_table` dataset, adding the *COLUMNS* section.
+
+What we get in the initial report is very basic. Next, we ought to add information with the following set of `info_*()` functions:
+
+- `info_tabular()`: Add info pertaining to the data table as a whole
+- `info_columns()`: Add info for each table column
+- `info_section()`: Add a section that provides ancillary information
+
+Let’s try adding some information with each of these functions and then look at the resulting report.
+
+```{r}
+informant <-
+  create_informant(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Example No. 2"
+  ) %>%
+  info_tabular(
+    description = "This table is included in the **pointblank** pkg."
+  ) %>%
+  info_columns(
+    columns = "date_time",
+    info = "This column is full of timestamps."
+  ) %>%
+  info_section(
+    section_name = "further information", 
+    `examples and documentation` = "Examples for how to use the `info_*()` functions
+    (and many more) are available at the 
+    [**pointblank** site](https://rich-iannone.github.io/pointblank/)."
+  )
+
+informant
+```
+
+As can be seen, the report is a bit more filled out with information. The *TABLE* and *COLUMNS* sections are in their prescribed order and the new section we named *FURTHER INFORMATION* follows those (and it has one subsection called *EXAMPLES AND DOCUMENTATION*). Let’s explore how each of the three different `info_*()` functions work.
+
+### The *TABLE* section and `info_tabular()`
+
+The `info_tabular()` function adds information to the TABLE section. We use named arguments to define subsection names and their content. In the previous example 
+
+```r
+info_tabular(description = "This table is included in the **pointblank** pkg.")
+```
+
+was used to make the *DESCRIPTION* subsection (all section titles are automatically capitalized). We can define as many subsections to the *TABLE* section as we need, either in the same `info_tabular()` call or across multiple calls.
+
+```{r}
+informant %>% 
+  info_tabular(Updates = "This table is not regularly updated.")
+```
+
+The *TABLE* section is a great place to put all the information about the table that needs to be front and center. Examples of some useful topics for this section might include:
+
+- a high-level summary of the table, stating its purpose and importance
+- what each row of the table represents
+- the main users of the table within an organization
+- a description of how the table is generated
+- information on the frequency of updates
+
+### The *COLUMNS* section and `info_columns()`
+
+The section that follows the *TABLE* section is *COLUMNS.* This section provides an opportunity to describe each table column in as much detail as necessary. Here, individual columns serve as subsections (automatically generated upon using `create_informant()`) and there can be subsections within each column as well.
+
+The interesting thing about the information provided here via `info_columns()` is that the information is additive. We can make multiple calls of `info_columns()` and disperse common pieces of info text to multiple columns and append the text to any existing.
+
+Let's use the `palmerpenguins::penguins` dataset and fill in information for each column by adapting documentation from the **palmerpenguins** package.
+
+```{r}
+informant_pp <- 
+  create_informant(
+    tbl = palmerpenguins::penguins,
+    tbl_name = "penguins",
+    label = "The `penguins` dataset from the **palmerpenguins** pkg."
+  ) %>% 
+  info_columns(
+    columns = "species",
+    info = "A factor denoting penguin species (*Adélie*, *Chinstrap*, and *Gentoo*)."
+  ) %>%
+  info_columns(
+    columns = "island",
+    info = "A factor denoting island in Palmer Archipelago, Antarctica
+    (*Biscoe*, *Dream*, or *Torgersen*)."
+  ) %>%
+  info_columns(
+    columns = "bill_length_mm",
+    info = "A number denoting bill length"
+  ) %>%
+  info_columns(
+    columns = "bill_depth_mm",
+    info = "A number denoting bill depth"
+  ) %>%
+  info_columns(
+    columns = "flipper_length_mm",
+    info = "An integer denoting flipper length"
+  ) %>%
+  info_columns(
+    columns = ends_with("mm"),
+    info = "(in units of millimeters)."
+  ) %>%
+  info_columns(
+    columns = "body_mass_g",
+    info = "An integer denoting body mass (grams)."
+  ) %>%
+  info_columns(
+    columns = "sex",
+    info = "A factor denoting penguin sex (`\"female\"`, `\"male\"`)."
+  ) %>%
+  info_columns(
+    columns = "year",
+    info = "The study year (e.g., `2007`, `2008`, `2009`)."
+  )
+
+informant_pp
+```
+
+We can use **tidyselect** functions like `ends_with()` to append info text to a common subsection that exists across multiple columns. This was useful for stating the units which were common across three columns: `bill_length_mm`, `bill_depth_mm`, and `flipper_length_mm`. The following **tidyselect** functions are available in pointblank to make this process easier:
+
+- `starts_with()`: Match columns that start with a prefix.
+- `ends_with()`: Match columns that end with a suffix.
+- `contains()`: Match columns that contain a literal string.
+- `matches()`: Perform matching with a regular expression.
+- `everything()`: Select all columns.
+
+------
+
+### Creating extra sections with `info_section()`
+
+Any information that doesn't fit in the *TABLE* or *COLUMNS* sections can be placed in extra sections with `info_section()`. These sections go at the bottom (in the order of creation). Let’s include a *SOURCE* section that provides references and a note on the data.
+
+```{r}
+informant_pp <- 
+  informant_pp %>%
+  info_section(
+    section_name = "source",
+    References = c(
+      
+"Adélie penguins: Palmer Station Antarctica LTER and K. Gorman. 2020. Structural 
+size measurements and isotopic signatures of foraging among adult male and female 
+Adélie penguins (Pygoscelis adeliae) nesting along the Palmer Archipelago near
+Palmer Station, 2007-2009 ver 5. Environmental Data Initiative
+<https://doi.org/10.6073/pasta/98b16d7d563f265cb52372c8ca99e60f>",
+
+"Gentoo penguins: Palmer Station Antarctica LTER and K. Gorman. 2020. Structural
+size measurements and isotopic signatures of foraging among adult male and female
+Gentoo penguin (Pygoscelis papua) nesting along the Palmer Archipelago near Palmer
+Station, 2007-2009 ver 5. Environmental Data Initiative
+<https://doi.org/10.6073/pasta/7fca67fb28d56ee2ffa3d9370ebda689>",
+
+"Chinstrap penguins: Palmer Station Antarctica LTER and K. Gorman. 2020.
+Structural size measurements and isotopic signatures of foraging among adult male
+and female Chinstrap penguin (Pygoscelis antarcticus) nesting along the Palmer
+Archipelago near Palmer Station, 2007-2009 ver 6. Environmental Data Initiative
+<https://doi.org/10.6073/pasta/c14dfcfada8ea13a17536e73eb6fbe9e>"
+    ),
+    Note = 
+"Originally published in: Gorman KB, Williams TD, Fraser WR (2014) Ecological Sexual
+Dimorphism and Environmental Variability within a Community of Antarctic Penguins
+(Genus Pygoscelis). PLoS ONE 9(3): e90081. doi:10.1371/journal.pone.0090081
+"
+)
+
+informant_pp
+```
+
+What other types of information go well in these separate sections? Some ideas are:
+
+- any info related to the source of the data table (e.g., references, background, etc.)
+- definitions/explanations of terms used above
+- persons responsible for the data table, perhaps with contact information
+- further details on how the table is produced
+- any important issues with the table and notes on upcoming changes
+- links to other information artifacts that pertain to the table
+- report generation metadata, which might include things like the update history, persons responsible, instructions on how to contribute, etc.
+
+### Customizing the information report with `get_informant_report()`
+
+With `get_informant_report()`, it's possible to alter the title of the information report, change the width of the table, and more. Let's make it so the report is slightly narrower at `600px` and that the title is the name of the table.
+
+```{r}
+informant_report <-
+  informant_pp %>%
+  get_informant_report(size = "600px", title = ":tbl_name:")
+
+informant_report
+```
+
+Given that this report looks really good, it can be published in a variety of ways (e.g., Connect, Quarto Pub, etc.), and, you can export to a standalone HTML file with `export_report()`.
+
+```{r eval=FALSE}
+export_report(informant_report, filename = "informant-penguins.html")
+```
+
+### SUMMARY
+
+1. Begin the process of documenting a dataset with `create_informant()`.
+2. Use `info_tabular()` to describe the table in general terms.
+3. With `info_columns()`, you can document each column in a dataset.
+4. Arbitrary sections of additional information can be added with `info_section()`.
+5. We can control the look and feel of the information report with `get_informant_report()`.
+6. It's possible to export the informant to standalone HTML with `export_report()`.
