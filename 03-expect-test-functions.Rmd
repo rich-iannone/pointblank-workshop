@@ -1,5 +1,5 @@
 ---
-title: "Using the `expect_*()` and `test_*()` functions"
+title: "Using the `expect_*()` and `test_*()` Functions"
 output: html_document
 ---
 
