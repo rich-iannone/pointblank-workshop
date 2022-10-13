@@ -303,7 +303,7 @@ dplyr::tibble(
 
 We can choose to email the report if the `notify` state is entered. The message can be created with the agent through the `email_create()` function. Here's a useful bit of code that allows for conditional sending.
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 
 if (any(x_list_3$notify)) {
 
