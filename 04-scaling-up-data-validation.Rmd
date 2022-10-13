@@ -1,0 +1,117 @@
+---
+title: "Scaling up Data Validation with the Multiagent"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pointblank)
+library(tidyverse)
+```
+
+## Intro
+
+If your data quality process involves more data validation runs and you have a large variety of tables to validate, we can take advantage of functions available in **pointblank** to make all that possible.
+
+### Writing agents to disk
+
+The `x_write_disk()` function lets you write a **pointblank** agent to disk. This is very useful if you want to continually save the interrogation results as part of a larger data quality process. Here's an example where the agent is saved to disk with the date as part of the filename.
+
+```{r eval=FALSE}
+
+# Create the agent, develop a validation plan, interrogate
+agent <-
+  create_agent(
+    tbl = ~ small_table,
+    tbl_name = "small_table",
+    label = "Daily check of `small_table`.",
+    actions = action_levels(
+      warn_at = 0.10,
+      stop_at = 0.25,
+      notify_at = 0.35
+    )
+  ) %>%
+  col_exists(columns = vars(date, date_time)) %>%
+  col_vals_regex(
+    columns = b,
+    regex = "[0-9]-[a-z]{3}-[0-9]{3}"
+  ) %>%
+  rows_distinct() %>%
+  col_vals_gt(columns = d, value = 100) %>%
+  col_vals_lte(columns = c, value = 5) %>%
+  interrogate()
+
+# Save the agent to disk with `x_write_disk()`; append the date
+x_write_disk(
+  agent,
+  filename = affix_date("agent-small_table"),
+  path = "small_table_tests"
+)
+```
+
+### Reading agents from disk
+
+We have this on disk as `"small_table_tests/agent-small_table_2022-10-13"`. We can read this from disk using the `x_read_disk()` function (it recreates the object).
+
+```{r}
+agent_2022_10_13 <- 
+  x_read_disk(
+    filename = "agent-small_table_2022-10-13",
+    path = "small_table_tests"
+  )
+```
+
+We can get the data validation report from it.
+
+```{r}
+agent_2022_10_13
+```
+
+### Creating a 'multiagent' to get a combined data validation report
+
+A common task might be to see how data quality is changing over time. If you have multiple saved agents that check the same table, we can make a combined validation report that shows all of those validations.
+
+We actually have five saved agents in the `"small_table_tests"` directory:
+
+- `"agent-small_table_2022-10-13"`
+- `"agent-small_table_2022-10-14"`
+- `"agent-small_table_2022-10-15"`
+- `"agent-small_table_2022-10-16"`
+- `"agent-small_table_2022-10-17"`
+
+Let's get them all into a single report that can. We do this by generating a `multiagent` and that object has it's own `get_multiagent_report()` function for customizing the layout and content of the report.
+
+
+```{r}
+multiagent <- 
+  create_multiagent(
+    x_read_disk("small_table_tests/agent-small_table_2022-10-13"),
+    x_read_disk("small_table_tests/agent-small_table_2022-10-14"),
+    x_read_disk("small_table_tests/agent-small_table_2022-10-15"),
+    x_read_disk("small_table_tests/agent-small_table_2022-10-15"),
+    x_read_disk("small_table_tests/agent-small_table_2022-10-16")
+  )
+```
+
+We can get a combined data validation report from it. By default, all validation reports are stacked together in the `"long"` display mode.
+
+```{r}
+multiagent
+```
+
+With `get_multiagent_report()` we can customize the reporting. Here, we will choose the `"wide"` display mode and provide a custom title.
+
+```{r}
+get_multiagent_report(
+  multiagent,
+  display_mode = "wide",
+  title = "Wide report from **Multiple** Table Validations"
+)
+```
+
+------
+
+### SUMMARY
+
+1. We can save agents to disk and read them back. This is good for keeping records of data quality and all data/reporting is preserved.
+2. Multiple agents can be combined together, generating specialized reports that can show the validations of multiple table (long display) of the evolution of data quality for a single table (wide display).
