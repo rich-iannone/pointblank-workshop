@@ -1,0 +1,334 @@
+---
+title: "Getting Deeper Into Documenting Data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pointblank)
+library(tidyverse)
+```
+
+## Intro
+
+We now know how to make a useful data dictionary that can be published and widely shared. We used a **pointblank** `informant` with a set of information functions to generate *info text* and put that text into the appropriate report sections. We’re going to take this a few steps further and look into some more functionality makes *info text* more dynamic and also include a finalizing step in this workflow that accounts for evolving data.
+
+### Creating snippets of useful text with `info_snippet()`
+
+A great source of information about the table can be the table itself. Suppose you want to show:
+
+- some categorical values from a particular column
+- a range of values in an important numeric column
+- KPI values that can be calculated using data in the table
+
+This can all be done with the `info_snippet()` function. You give the snippet a name and you give it a function call. Let’s do this for the `small_table` dataset available in pointblank. Again, this is what that table looks like:
+
+```{r paged.print=FALSE}
+pointblank::small_table
+```
+
+If you wanted the mean value of data in column `d` rounded to one decimal place, one such way we could do it is with this expression:
+
+```{r}
+small_table %>% .$d %>% mean() %>% round(1)
+```
+
+Inside of an `info_snippet()` call, which is used after creating the informant object, the expression would look like this:
+
+```{r}
+informant <- 
+  create_informant(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Metadata for the `small_table` dataset."
+  ) %>%
+  info_snippet(
+    snippet_name = "mean_d",
+    fn = ~ . %>% .$d %>% mean() %>% round(1)
+  )
+```
+
+The `small_table` dataset is associated with the `informant` as the target table, so, it’s represented as the leading `.` in the functional sequence given to `fn` inside of `info_snippet()`. It’s important to note that there’s a leading `~`, making this expression a formula (i.e., we don’t want to execute anything here, at this time).
+
+Lastly, the snippet has been given the name `"mean_d"`. We know that this snippet will produce the value `2304.7` so what can we do with that? We should put that value into some info text and use the `snippet_name` as the key. It works similarly to how the **glue** package does text interpolation, and here’s the continuation of the above example:
+
+```{r}
+informant <- 
+  informant %>%
+  info_columns(
+    columns = vars(d),
+    info = "This column contains fairly large numbers (much larger than
+    those numbers in column `a`. The mean value is {mean_d}, which is
+    far greater than any number in that other column."
+  )
+```
+
+Within the text, there’s the use of curly braces and the name of the snippet (`{mean_d}`). That’s where the `2304.7` value will be inserted. This methodology for inserting the computed values of snippets can be performed wherever info text is provided (in either of the `info_tabular()`, `info_columns()`, and `info_section()` functions). 
+
+There's one last step. We have to finalize everything with the `incorporate()` function. Using this instructs **pointblank** to query the data (this is similar to using `interrogate()` when doing data validation).
+
+Let’s write the whole thing again and finish it off with a call to `incorporate()`.
+
+```{r}
+informant <- 
+  create_informant(
+    tbl = small_table,
+    tbl_name = "small_table",
+    label = "Metadata for the `small_table` dataset."
+  ) %>%
+  info_snippet(
+    snippet_name = "mean_d",
+    fn = ~ . %>% .$d %>% mean() %>% round(1)
+  ) %>%
+    info_columns(
+    columns = vars(d),
+    info = "This column contains fairly large numbers (much larger than
+    those numbers in column `a`. The mean value is {mean_d}, which is
+    far greater than any number in that other column."
+  ) %>%
+  incorporate()
+```
+
+Now let's print the `informant` to get the information report for the table.
+
+```{r}
+informant
+```
+
+### Using `snip_*()` functions with `info_snippet()`
+
+There are a few functions available in **pointblank** that make it much easier to get commonly-used text snippets. All of them begin with the `snip_` prefix and they are:
+
+- `snip_list()`: Get a list of column categories
+- `snip_lowest()`: Get the lowest value from a column
+- `snip_highest()`: Get the highest value from a column
+- `snip_stats()`: Get an inline statistical summary
+
+Each of these functions can be used directly as a `fn` value in `info_snippet()` and we don’t have to specify the table since its assumed that the target table is where we’ll be snipping data from. Let’s have a look at each of these in action.
+
+#### `snip_list()`
+
+When describing some aspect of the target table, we may want to extract some values from a column and include them as a piece of info text. This can be efficiently done with `snip_list()`.
+
+```{r}
+informant_pp <- 
+  create_informant(
+    tbl = ~ palmerpenguins::penguins,
+    tbl_name = "penguins",
+    label = "The `penguins` dataset from the **palmerpenguins** pkg."
+  ) %>% 
+  info_snippet(
+    snippet_name = "species_snippet",
+    fn = snip_list(column = "species")
+  ) %>%
+  info_snippet(
+    snippet_name = "island_snippet",
+    fn = snip_list(column = "island")
+  ) %>%
+  info_columns(
+    columns = "species",
+    info = "A factor denoting penguin species ({species_snippet})."
+  ) %>%
+  info_columns(
+    columns = "island",
+    info = "A factor denoting island in Palmer Archipelago, Antarctica
+    ({island_snippet})."
+  ) %>%
+  incorporate()
+```
+
+```{r}
+informant_pp
+```
+
+This also works for numeric values. Let’s use `snip_list()` to provide a text snippet based on values in the `year` column (which is an `integer` column):
+
+```{r}
+informant_pp <-
+  informant_pp %>%
+  info_columns(
+    columns = "year",
+    info = "The study year ({year_snippet})."
+  ) %>%
+  info_snippet(
+    snippet_name = "year_snippet",
+    fn = snip_list(column = "year")
+  ) %>%
+  incorporate()
+```
+
+```{r}
+informant_pp
+```
+
+#### `snip_lowest()` and `snip_highest()`
+
+We can get the lowest and highest values from a column and inject those formatted values into some info_text. Let’s do that for some of the measured values in the penguins dataset with `snip_lowest()` and `snip_highest()`.
+
+```{r}
+informant_pp <-
+  informant_pp %>%
+  info_columns(
+    columns = "bill_length_mm",
+    info = "A number denoting bill length"
+  ) %>%
+  info_columns(
+    columns = "bill_depth_mm",
+    info = "A number denoting bill depth (in the range of
+    {min_depth} to {max_depth} millimeters)."
+  ) %>%
+  info_columns(
+    columns = "flipper_length_mm",
+    info = "An integer denoting flipper length"
+  ) %>%
+  info_columns(
+    columns = matches("length"),
+    info = "(in units of millimeters)."
+  ) %>%
+  info_columns(
+    columns = "flipper_length_mm",
+    info = "Largest observed is {largest_flipper_length} mm."
+  ) %>%
+  info_snippet(
+    snippet_name = "min_depth",
+    fn = snip_lowest(column = "bill_depth_mm")
+  ) %>%
+  info_snippet(
+    snippet_name = "max_depth",
+    fn = snip_highest(column = "bill_depth_mm")
+  ) %>%
+  info_snippet(
+    snippet_name = "largest_flipper_length",
+    fn = snip_highest(column = "flipper_length_mm")
+  ) %>%
+  incorporate()
+```
+
+```{r}
+informant_pp
+```
+
+We can see from the report output that we can creatively use the lowest and highest values obtained by `snip_lowest()` and `snip_highest()` to specify a range or simply show some maximum value.
+
+Note that while the ordering of the `info_columns()` calls in the example affects the overall layout of the text (through the text appending behavior), the placement of `info_snippet()` calls does not matter. And, again, we must use `incorporate()` to update all of the text snippets and render them in their appropriate locations.
+
+### Enhancements to text: *Text Tricks*
+
+You can use Markdown but there are a few extra tricks that can make the resulting text even better; we call them *Text Tricks*. Once you know about these text tricks you’ll be able to express information in many more interesting ways.
+
+#### Links and Dates
+
+If you have links in your text, **pointblank** will try to identify them and style them nicely. This amounts to using a pleasing, light-blue color and underlines that appear on hover. It doesn’t take much to style links but it does require *something*. So, Markdown links written as `< link url >` or `[ link text ]( link url )` will both get the transformation treatment.
+
+Sometimes you want dates to stand out from text. Try enclosing a date expressed in the ISO-8601 standard with parentheses, like this: `(2004-12-01)`.
+
+Here’s how we might use these features while otherwise adding more information to the **palmerpenguins** reporting:
+
+```{r}
+informant_pp <-
+  informant_pp %>%
+  info_tabular(
+    `R dataset` = "The goal of `palmerpenguins` is to provide a great dataset
+    for data exploration & visualization, as an alternative to `iris`. The
+    latest CRAN release was published on (2020-07-25).",
+    `data collection` = "Data were collected and made available by Dr. Kristen
+    Gorman and the [Palmer Station, Antarctica LTER](https://pal.lternet.edu),
+    a member of the [Long Term Ecological Research Network](https://lternet.edu).",
+    citation = "Horst AM, Hill AP, Gorman KB (2020). palmerpenguins: Palmer 
+    Archipelago (Antarctica) penguin data. R package version 0.1.0.
+    <https://allisonhorst.github.io/palmerpenguins/>. 
+    doi: 10.5281/zenodo.3960218."
+  ) %>%
+  incorporate()
+```
+
+```{r}
+informant_pp
+```
+
+#### Labels
+
+We can take portions of text and present them as labels. These will help you call out important attributes in short form and may eliminate the need for oft-repeated statements. You might apply to labels to signify priority, category, or any other information you find useful. To do this we have two options,
+
+1. Use double parentheses for a rectangular label: `((label text))`
+2. Use triple parens for a rounded-rectangular label: `(((label text)))`
+
+```{r}
+informant_pp <-
+  informant_pp %>%
+  info_columns(
+    columns = vars(body_mass_g), 
+    info = "An integer denoting body mass."
+  ) %>%
+  info_columns(
+    columns = c(ends_with("mm"), ends_with("g")),
+    info = "((measured))"    
+  ) %>%
+  info_section(
+    section_name = "additional notes",
+    `data types` = "(((factor))) (((numeric))) (((integer)))"
+  ) %>%
+  incorporate()
+```
+
+```{r}
+informant_pp
+```
+
+#### Styled text
+
+If you want to use CSS styles on spans of info text, it’s possible with the following construction:
+
+`[[ info text ]]<< CSS style rules >>`
+
+It’s important to ensure that each CSS rule is concluded with a `;` character in this syntax. Styling the word `factor` inside a piece of *info text* might look like this:
+
+`This is a [[factor]]<<color: red; font-weight: 300;>> value.`
+
+here are many CSS style rules that can be used. Here’s a sample of a few useful ones:
+
+- `color: <a color value>;` (text color)
+- `background-color: <a color value>;` (the text’s background color)
+- `text-decoration: (overline | line-through | underline);`
+- `text-transform: (uppercase | lowercase | capitalize);`
+- `letter-spacing: <a +/- length value>;`
+- `word-spacing: <a +/- length value>;`
+- `font-style: (normal | italic | oblique);`
+- `font-weight: (normal | bold | 100-900);`
+- `font-variant: (normal | bold | 100-900);`
+- `border: <a color value> <a length value> (solid | dashed | dotted);`
+
+Continuing with our palmerpenguins reporting, we’ll add some more info text and take the opportunity to add CSS style rules using the `[[ ]]<< >>` syntax.
+
+```{r}
+informant_pp <-
+  informant_pp %>%
+  info_columns(
+    columns = vars(sex), 
+    info = "A [[factor]]<<text-decoration: underline;>> 
+    denoting penguin sex (female or male)."
+  ) %>%
+  info_section(
+    section_name = "additional notes",
+    keywords = "
+    [[((penguins))]]<<border-color: platinum; background-color: #F0F8FF;>>
+     [[((Antarctica))]]<<border-color: #800080; background-color: #F2F2F2;>>
+     [[((measurements))]]<<border-color: #FFB3B3; background-color: #FFFEF4;>>
+    "
+  ) %>%
+  incorporate()
+```
+
+```{r}
+informant_pp
+```
+
+With the above `info_columns()` and `info_section()` function calls, we are able to style a single word (with an underline) and even style labels (changing the border and background colors). The syntax here is somewhat forgiving, allowing you to put line breaks between `]]` and `<<` and between style rules so that lines of markup don’t have to be overly long.
+
+### SUMMARY
+
+1. We can query the table being documented with an expression inside `info_snippet()`. This allows us to inject the expression output into *info text*.
+2. There are several `snip_*()` functions included in **pointblank** that handle common use cases. They are used like this: `info_snippet(fn = snip_*(...))`.
+3. We can create label-like text with `(( ))` or `((( )))`
+4. We can style text with `[[ ]]<< >>`.
+5. Links will be styled automatically if you use Markdown links; dates in ISO 8601 notation can be autostyled if enclosed in parentheses.
