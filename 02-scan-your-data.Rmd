@@ -67,7 +67,7 @@ scan_data(tbl = dplyr::starwars, sections = "OVS", lang = "da")
 
 It's possible to export this reporting to a self-contained HTML file. To do so, use the `export_report()` function (this also works for every other type of reporting you'll see in the Viewer).
 
-```{r}
+```{r eval=FALSE}
 # Use `scan_data()` and assign reporting to `tbl_scan`
 tbl_scan <- scan_data(tbl = dplyr::storms, sections = "OVS")
 
