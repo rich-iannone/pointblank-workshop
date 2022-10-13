@@ -7,16 +7,13 @@ The goal of the workshop is to introduce you to a lot of examples and provide so
 Each module of the workshop focuses on a different subset of functions, with relevant examples and exercises in each. They are all presented here as **R Markdown** (.Rmd) files with one file for each workshop module:
 
 - `"01-intro-to-data-validation.Rmd"` (The `agent`, validation fns, interrogation/reports)
-- `"01z-PRACTICE-01.Rmd"` (Practice with functions from module `01`)
 
 - `"02-scan-your-data.Rmd"` (Looking at your data with `scan_data()`)
 - `"03-expect-test-functions.Rmd"` (Using the `expect_*()` and `test_*()` functions)
 - `"04-scaling-up-data-validation.Rmd"` (The `multiagent` and its reporting structures)
-- `"04z-PRACTICE-02-03-04.Rmd"` (Practice with functions from modules `02`, `03`, and `04`)
 
 - `"05-intro-to-data-documentation.Rmd"` (The `informant` and describing your data)
 - `"06-getting-deeper-into-documenting-data.Rmd"` (Using snippets and text tricks)
-- `"06z-PRACTICE-05-06.Rmd"` (Practice with functions from modules `05` and `06`)
 
 You can navigate to any of these and modify the code within the self-contained **R Markdown** code chunks. Entire **R Markdown** files can be knit to HTML, where a separate window will show the rendered document.
 
