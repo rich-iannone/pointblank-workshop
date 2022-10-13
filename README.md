@@ -1,4 +1,4 @@
-## The **pointblank** Workshop, XXL Size
+## The **pointblank** Workshop
 
 This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package.
 
