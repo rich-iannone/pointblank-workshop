@@ -49,11 +49,11 @@ This string can contain less key characters and the order can be changed to suit
 
 The `tbl` supplied could be a data frame, tibble, a `tbl_dbi` object, or a `tbl_spark` object. Here are a few more datasets that could be scanned, this time using `sections = "OSV"`:
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 scan_data(tbl = safetyData::adam_adae, sections = "OSV")
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 scan_data(tbl = safetyData::adam_advs, sections = "OSV")
 ```
 
@@ -90,7 +90,7 @@ dplyr::storms
 
 Here's how we generate the new `.R` file:
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 
 draft_validation(
   tbl = ~dplyr::storms, # This `~` makes it an expression for getting the data
