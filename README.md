@@ -1,10 +1,12 @@
 ## The **pointblank** Workshop
 
-This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package.
+This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package. It's available as an RStudio Cloud project, and that makes it easy to get up and running.
 
-The goal of the workshop is to introduce you to a good variety of examples with the aim of getting well-acquainted with the essential functionality available in the package.
+https://rstudio.cloud/content/4726872
 
-Each module of the workshop focuses on a different subset of functions, with relevant examples and exercises in each. They are all presented here as **R Markdown** (.Rmd) files with one file for each workshop module:
+The workshop modules will introduce you to a large variety of examples to get you well-acquainted with the basic functionality of the package.
+
+Each module of the workshop focuses on a different subset of functions and they are all presented here as **R Markdown** (.Rmd) files, with one file for each workshop module:
 
 - `"01-intro-to-data-validation.Rmd"` (The `agent`, validation fns, interrogation/reports)
 
