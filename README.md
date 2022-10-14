@@ -2,7 +2,7 @@
 
 This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package.
 
-The goal of the workshop is to introduce you to a lot of examples and provide some time to use the functions of **pointblank** with some sample datasets, learning bit-by-bit as we go.
+The goal of the workshop is to introduce you to a good variety of examples with the aim of getting well-acquainted with the essential functionality available in the package.
 
 Each module of the workshop focuses on a different subset of functions, with relevant examples and exercises in each. They are all presented here as **R Markdown** (.Rmd) files with one file for each workshop module:
 
