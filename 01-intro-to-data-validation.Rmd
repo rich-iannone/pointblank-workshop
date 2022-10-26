@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(pointblank)
 library(tidyverse)
 library(blastula)
+library(palmerpenguins)
 ```
 
 ## Intro
@@ -18,17 +19,24 @@ A common workflow for data validation in **pointblank** involves three basic com
 - the declaration of validation steps using validation functions (as many as you need)
 - the interrogation of the data (here the agent finally carries out the validation tasks)
 
-We always start with `create_agent()` and define how the data can be reached and also provide some basic rules about how an interrogation of how that data should eventually be carried out. While we are giving the agent some default behavior, we can override some of this on a step-by-step basis when declaring our validation steps. We always end with `interrogate()` and that function carries out the work of validating the data and generating the all-important reporting. 
+We always start with `create_agent()` and define how the data can be reached and also provide some basic rules about how an interrogation of how that data should eventually be carried out. While we are giving the agent some default behavior, we can override some of this on a step-by-step basis when declaring our validation steps. We always end with `interrogate()` and that function carries out the work of validating the data and generating the all-important reporting. To sum up, this is the construction:
+
+```r
+agent <-
+  create_agent(...) %>%
+  << validation functions >> %>%
+  interrogate()
+```
 
 ### A simple data validation on a small dataset called `small_table`
 
-The package contains a few datasets. A really small one for experimenting is called `small_table`:
+The package contains a few datasets. A really small one for experimentation is called `small_table`:
 
 ```{r paged.print=FALSE}
 pointblank::small_table
 ```
 
-Let's create an `agent`, give it the `small_table`, and look at the report.
+We're going to break the validation process into steps. First, let's create an `agent`, give it the `small_table`, and look at the report.
 
 ```{r}
 # Create the agent with `create_agent()`; the `tbl` is given to the agent
@@ -49,16 +57,16 @@ Okay. Let's provide a few validation functions.
 agent_1 <-
   agent_1 %>%
   col_vals_gte(columns = d, value = 0) %>%
-  col_is_logical(columns = e) %>%
-  col_is_character(columns = c(b, f)) %>%
-  col_is_numeric(columns = d) %>%
   col_vals_in_set(columns = f, set = c("low", "mid", "high")) %>%
+  col_is_logical(columns = e) %>%
+  col_is_numeric(columns = d) %>%
+  col_is_character(columns = c(b, f)) %>%
   rows_distinct()
 
 agent_1
 ```
 
-The report contains the information about the validation steps but many of the table cells have no data. That area is the interrogation data, and, we haven't yet used the `interrogate()` function. Let's use it now.
+When looking at the report, we see that it contains the information about the validation steps but many of the table cells (to the right) have no entries. That area is the interrogation data, and, we haven't yet used the `interrogate()` function. Let's use it now:
 
 ```{r}
 agent_1 <- agent_1 %>% interrogate()
@@ -66,7 +74,7 @@ agent_1 <- agent_1 %>% interrogate()
 agent_1
 ```
 
-Now, we see a report we can use! Let's go over each of the columns and understand what they mean.
+Now, we see a validation report we can use! Let's go over each of the columns and understand what they mean.
 
 - `STEP`: the name of the validation function used for the validation step and
 the step number.
@@ -79,7 +87,7 @@ the step number.
 
 - `EVAL`: a symbol that denotes the success of interrogation evaluation for each step. A checkmark indicates no issues with evaluation. A warning sign indicates that a warning occurred during evaluation. An explosion symbol indicates that evaluation failed due to an error. Hover over the symbol for details on each condition.
 
-- `UNITS`: the total number of test units for the validation step
+- `UNITS`: the total number of test units for the validation step (these are the atomic units of testing which depend on the type of validation).
 
 - `PASS`: on top is the absolute number of passing test units and below that is the fraction of passing test units over the total number of test units.
 
@@ -168,7 +176,7 @@ agent_3 <-
     )
   ) %>%
   col_is_logical(columns = e) %>%
-  col_is_character(columns = c(b, f)) %>%
+  col_is_character(columns = vars(b, f)) %>%
   col_vals_lt(columns = d, value = 9600) %>%
   col_vals_in_set(columns = f, set = c("low", "mid")) %>%
   rows_distinct() %>%
@@ -177,9 +185,111 @@ agent_3 <-
 agent_3
 ```
 
-### Data extracts for failed rows
+### A look at the available validation functions
 
-Those CSV buttons are useful for sharing the report with others since they don't even need to know R to get some use from those extracts. For the person familiar with R and **pointblank**, it is possible to get data frames for the failed rows (per validation step).
+There are 36 validation functions. Here they are:
+
+- `col_vals_lt()`
+- `col_vals_lte()`
+- `col_vals_equal()`
+- `col_vals_not_equal()`
+- `col_vals_gte()`
+- `col_vals_gt()`
+- `col_vals_between()`
+- `col_vals_not_between()`
+- `col_vals_in_set()`
+- `col_vals_not_in_set()`
+- `col_vals_make_set()`
+- `col_vals_make_subset()`
+- `col_vals_increasing()`
+- `col_vals_decreasing()`
+- `col_vals_null()`
+- `col_vals_not_null()`
+- `col_vals_regex()`
+- `col_vals_within_spec()`
+- `col_vals_expr()`
+- `rows_distinct()`
+- `rows_complete()`
+- `col_is_character()`
+- `col_is_numeric()`
+- `col_is_integer()`
+- `col_is_logical()`
+- `col_is_date()`
+- `col_is_posix()`
+- `col_is_factor()`
+- `col_exists()`
+- `col_schema_match()`
+- `row_count_match()`
+- `col_count_match()`
+- `tbl_match()`
+- `conjointly()`
+- `serially()`
+- `specially()`
+
+It's a lot to keep track of but they all try to use a consistent interface. Let's break this down.
+
+The `col_vals_*()` group will check individual cells within one or more columns. Aside from using an 'agent', we can use the validation functions *directly* on the data. It acts as a sort of validation 'filter'; data will pass through unchanged if validation passes, error if validation doesn't pass. Let's try that with `col_vals_between()`:
+
+```{r paged.print=FALSE}
+small_table %>% col_vals_between(columns = a, left = 0, right = 10)
+```
+
+```{r error=TRUE}
+small_table %>% col_vals_between(columns = a, left = 5, right = 10)
+```
+
+The `col_is_*()` group will check whether a column is of a certain type. Let's look at two cases: one passing and the other failing.
+
+```{r paged.print=FALSE}
+small_table %>% col_is_character(columns = b)
+```
+
+```{r error=TRUE}
+small_table %>% col_is_numeric(columns = date)
+```
+
+The two `rows_*()` functions (`rows_distinct()` and `rows_complete()`) will check entire rows (this can be narrowed down with the `columns` argument). Here are examples of both, with failing and then passing cases.
+
+`rows_distinct()`:
+
+```{r error=TRUE}
+small_table %>% rows_distinct()
+```
+
+```{r paged.print=FALSE}
+head(small_table) %>% rows_distinct()
+```
+
+`rows_complete()`:
+
+```{r error=TRUE}
+small_table %>% rows_complete()
+```
+
+```{r paged.print=FALSE}
+small_table %>% rows_complete(columns = vars(date_time, date, a, b))
+```
+
+The `*_match()` functions validate whether some aspect of the table as a whole matches an expectation.
+
+- `col_schema_match()` - column schema matching
+- `row_count_match()`  - tbl row count matching (with another tbl or fixed value)
+- `col_count_match()`  - tbl col count matching (with another tbl or fixed value)
+- `tbl_match()`        - does the target table match a comparison table?
+
+Here are two (passing) examples:
+
+```{r paged.print=FALSE}
+small_table %>% row_count_match(count = 13)
+```
+
+```{r paged.print=FALSE}
+small_table %>% col_count_match(count = palmerpenguins::penguins)
+```
+
+### Getting data extracts for failed rows from the 'agent'
+
+Those CSV buttons in the validation report are useful for sharing the report with others since they don't even need to know R to obtain those extracts. For the person familiar with R and **pointblank**, it is possible to get data frames for the failed rows (per validation step).
 
 We can use the `get_data_extracts()` function to obtain a list of data frames, or, use the `i` argument to get a data frame available for a specific step. Not all steps will have associated data frames. Also, not all validation functions will produce data frames here (they need to check values in columns).
 
@@ -355,9 +465,10 @@ agent_3 %>% get_agent_report(lang = "de")
 1. Data validation in **pointblank** requires the creation of an agent, validation functions, and an interrogation.
 2. The agent creates a report that tries to be informative and easily explainable.
 3. We can set data quality thresholds with `action_levels()`; there can be default DQ thresholds and step-specific thresholds (in both cases, supplied to `actions`).
-4. We can get data extracts pertaining to failing test units in rows of the input dataset (with `get_data_extracts()`).
-5. There is the option to obtain 'sundered' data, which is the input data split by whether cells contained failing test units (with `get_sundered_data()`)
-6. A huge amount of validation data can be accessed with the `get_agent_x_list()` function (useful for programming with the validation results).
-7. We can create an email message using a specialized version of the validation report with `email_create()`; this integrates with the **blastula** R package.
-8. The report can be modified with `get_agent_report()`.
+4. There are 36 validation functions (having a similar interface and many common arguments); they can be used with an agent or directly on the data.
+5. We can get data extracts pertaining to failing test units in rows of the input dataset (with `get_data_extracts()`).
+6. There is the option to obtain 'sundered' data, which is the input data split by whether cells contained failing test units (with `get_sundered_data()`)
+7. A huge amount of validation data can be accessed with the `get_agent_x_list()` function (useful for programming with the validation results).
+8. We can create an email message using a specialized version of the validation report with `email_create()`; this integrates with the **blastula** R package.
+9. The report can be modified with `get_agent_report()`.
 
