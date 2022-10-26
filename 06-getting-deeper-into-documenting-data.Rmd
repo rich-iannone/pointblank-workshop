@@ -80,7 +80,7 @@ informant <-
     snippet_name = "mean_d",
     fn = ~ . %>% .$d %>% mean() %>% round(1)
   ) %>%
-    info_columns(
+  info_columns(
     columns = vars(d),
     info = "This column contains fairly large numbers (much larger than
     those numbers in column `a`. The mean value is {mean_d}, which is
