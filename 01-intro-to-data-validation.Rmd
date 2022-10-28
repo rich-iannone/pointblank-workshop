@@ -371,7 +371,7 @@ Let's obtain such a list from `agent_3`, which had 10 validation steps:
 
 ```{r paged.print=FALSE}
 # Generate the `x_list` object from `agent_3`
-x_list_3 <- agent_3 %>% get_agent_x_list
+x_list_3 <- agent_3 %>% get_agent_x_list()
 
 # Printing this gives us a console preview
 # of which components are available
