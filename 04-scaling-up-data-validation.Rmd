@@ -88,8 +88,8 @@ multiagent <-
     x_read_disk("small_table_tests/agent-small_table_2022-10-13"),
     x_read_disk("small_table_tests/agent-small_table_2022-10-14"),
     x_read_disk("small_table_tests/agent-small_table_2022-10-15"),
-    x_read_disk("small_table_tests/agent-small_table_2022-10-15"),
-    x_read_disk("small_table_tests/agent-small_table_2022-10-16")
+    x_read_disk("small_table_tests/agent-small_table_2022-10-16"),
+    x_read_disk("small_table_tests/agent-small_table_2022-10-17")
   )
 ```
 
