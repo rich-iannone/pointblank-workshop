@@ -34,6 +34,3 @@ For this workshop, however, we are going to use the development version of **poi
 ```{r eval=FALSE}
 # devtools::install_github("rich-iannone/pointblank")
 ```
-
-
-
