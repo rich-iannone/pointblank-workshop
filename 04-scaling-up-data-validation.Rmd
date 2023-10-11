@@ -79,7 +79,7 @@ We actually have five saved agents in the `"small_table_tests"` directory:
 - `"agent-small_table_2022-10-16"`
 - `"agent-small_table_2022-10-17"`
 
-Let's get them all into a single report that can. We do this by generating a `multiagent` and that object has it's own `get_multiagent_report()` function for customizing the layout and content of the report.
+Let's get them all into a single report. We do this by generating a `multiagent` and that object has it's own `get_multiagent_report()` function for customizing the layout and content of the report.
 
 
 ```{r}
