@@ -81,7 +81,6 @@ We actually have five saved agents in the `"small_table_tests"` directory:
 
 Let's get them all into a single report. We do this by generating a `multiagent` and that object has it's own `get_multiagent_report()` function for customizing the layout and content of the report.
 
-
 ```{r}
 multiagent <- 
   create_multiagent(
