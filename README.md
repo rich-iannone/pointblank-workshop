@@ -1,6 +1,6 @@
 ## The **pointblank** Workshop
 
-This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package. All materials are available as a Posit Cloud project, making it easy to get up and running.
+This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package. All materials are also available as a Posit Cloud project, making it easy to get up and running.
 
 https://posit.cloud/content/4726872
 
