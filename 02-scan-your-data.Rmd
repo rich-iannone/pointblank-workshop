@@ -95,7 +95,7 @@ Here's how we generate the new `.R` file:
 draft_validation(
   tbl = ~dplyr::storms, # This `~` makes it an expression for getting the data
   tbl_name = "storms", 
-  file_name = "storms-validation"
+  filename = "storms-validation"
 )
 ```
 
