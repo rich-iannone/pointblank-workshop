@@ -23,8 +23,8 @@ We always start with `create_agent()` and define how the data can be reached and
 
 ```r
 agent <-
-  create_agent(...) %>%
-  << validation functions >> %>%
+  create_agent(...) |>
+  << validation functions >> |>
   interrogate()
 ```
 
@@ -55,12 +55,12 @@ Okay. Let's provide a few validation functions.
 
 ```{r}
 agent_1 <-
-  agent_1 %>%
-  col_vals_gte(columns = d, value = 0) %>%
-  col_vals_in_set(columns = f, set = c("low", "mid", "high")) %>%
-  col_is_logical(columns = e) %>%
-  col_is_numeric(columns = d) %>%
-  col_is_character(columns = c(b, f)) %>%
+  agent_1 |>
+  col_vals_gte(columns = d, value = 0) |>
+  col_vals_in_set(columns = f, set = c("low", "mid", "high")) |>
+  col_is_logical(columns = e) |>
+  col_is_numeric(columns = d) |>
+  col_is_character(columns = c(b, f)) |>
   rows_distinct()
 
 agent_1
@@ -69,7 +69,7 @@ agent_1
 When looking at the report, we see that it contains the information about the validation steps but many of the table cells (to the right) have no entries. That area is the interrogation data, and, we haven't yet used the `interrogate()` function. Let's use it now:
 
 ```{r}
-agent_1 <- agent_1 %>% interrogate()
+agent_1 <- agent_1 |> interrogate()
 
 agent_1
 ```
@@ -131,16 +131,16 @@ agent_2 <-
     tbl_name = "small_table",
     label = "Workshop agent No. 2",
     actions = al
-  ) %>%
-  col_is_posix(columns = date_time) %>%
-  col_vals_lt(columns = a, value = 7) %>%
-  col_vals_regex(columns = b, regex = "^[0-9]-[a-w]{3}-[2-9]{3}$") %>%
-  col_vals_between(columns = d, left = 0, right = 4000) %>%
-  col_is_logical(columns = e) %>%
-  col_is_character(columns = c(b, f)) %>%
-  col_vals_lt(columns = d, value = 9600) %>%
-  col_vals_in_set(columns = f, set = c("low", "mid")) %>%
-  rows_distinct() %>%
+  ) |>
+  col_is_posix(columns = date_time) |>
+  col_vals_lt(columns = a, value = 7) |>
+  col_vals_regex(columns = b, regex = "^[0-9]-[a-w]{3}-[2-9]{3}$") |>
+  col_vals_between(columns = d, left = 0, right = 4000) |>
+  col_is_logical(columns = e) |>
+  col_is_character(columns = c(b, f)) |>
+  col_vals_lt(columns = d, value = 9600) |>
+  col_vals_in_set(columns = f, set = c("low", "mid")) |>
+  rows_distinct() |>
   interrogate()
 
 agent_2
@@ -161,10 +161,10 @@ agent_3 <-
     tbl_name = "small_table",
     label = "Workshop agent No. 3",
     actions = al
-  ) %>%
-  col_is_posix(columns = date_time) %>%
-  col_vals_lt(columns = a, value = 7) %>%
-  col_vals_regex(columns = b, regex = "^[0-9]-[a-w]{3}-[2-9]{3}$") %>%
+  ) |>
+  col_is_posix(columns = date_time) |>
+  col_vals_lt(columns = a, value = 7) |>
+  col_vals_regex(columns = b, regex = "^[0-9]-[a-w]{3}-[2-9]{3}$") |>
   col_vals_between(
     columns = d,
     left = 0,
@@ -174,12 +174,12 @@ agent_3 <-
       stop_at = 3,           # threshold values (i.e., a single test unit
       notify_at = 5          # failing triggers the `warn` state
     )
-  ) %>%
-  col_is_logical(columns = e) %>%
-  col_is_character(columns = vars(b, f)) %>%
-  col_vals_lt(columns = d, value = 9600) %>%
-  col_vals_in_set(columns = f, set = c("low", "mid")) %>%
-  rows_distinct() %>%
+  ) |>
+  col_is_logical(columns = e) |>
+  col_is_character(columns = vars(b, f)) |>
+  col_vals_lt(columns = d, value = 9600) |>
+  col_vals_in_set(columns = f, set = c("low", "mid")) |>
+  rows_distinct() |>
   interrogate()
 
 agent_3
@@ -231,21 +231,21 @@ It's a lot to keep track of but they all try to use a consistent interface. Let'
 The `col_vals_*()` group will check individual cells within one or more columns. Aside from using an 'agent', we can use the validation functions *directly* on the data. It acts as a sort of validation 'filter'; data will pass through unchanged if validation passes, error if validation doesn't pass. Let's try that with `col_vals_between()`:
 
 ```{r paged.print=FALSE}
-small_table %>% col_vals_between(columns = a, left = 0, right = 10)
+small_table |> col_vals_between(columns = a, left = 0, right = 10)
 ```
 
 ```{r error=TRUE}
-small_table %>% col_vals_between(columns = a, left = 5, right = 10)
+small_table |> col_vals_between(columns = a, left = 5, right = 10)
 ```
 
 The `col_is_*()` group will check whether a column is of a certain type. Let's look at two cases: one passing and the other failing.
 
 ```{r paged.print=FALSE}
-small_table %>% col_is_character(columns = b)
+small_table |> col_is_character(columns = b)
 ```
 
 ```{r error=TRUE}
-small_table %>% col_is_numeric(columns = date)
+small_table |> col_is_numeric(columns = date)
 ```
 
 The two `rows_*()` functions (`rows_distinct()` and `rows_complete()`) will check entire rows (this can be narrowed down with the `columns` argument). Here are examples of both, with failing and then passing cases.
@@ -253,21 +253,21 @@ The two `rows_*()` functions (`rows_distinct()` and `rows_complete()`) will chec
 `rows_distinct()`:
 
 ```{r error=TRUE}
-small_table %>% rows_distinct()
+small_table |> rows_distinct()
 ```
 
 ```{r paged.print=FALSE}
-head(small_table) %>% rows_distinct()
+head(small_table) |> rows_distinct()
 ```
 
 `rows_complete()`:
 
 ```{r error=TRUE}
-small_table %>% rows_complete()
+small_table |> rows_complete()
 ```
 
 ```{r paged.print=FALSE}
-small_table %>% rows_complete(columns = vars(date_time, date, a, b))
+small_table |> rows_complete(columns = vars(date_time, date, a, b))
 ```
 
 The `*_match()` functions validate whether some aspect of the table as a whole matches an expectation.
@@ -280,11 +280,11 @@ The `*_match()` functions validate whether some aspect of the table as a whole m
 Here are two (passing) examples:
 
 ```{r paged.print=FALSE}
-small_table %>% row_count_match(count = 13)
+small_table |> row_count_match(count = 13)
 ```
 
 ```{r paged.print=FALSE}
-small_table %>% col_count_match(count = palmerpenguins::penguins)
+small_table |> col_count_match(count = palmerpenguins::penguins)
 ```
 
 ### Getting data extracts for failed rows from the 'agent'
@@ -321,13 +321,13 @@ agent_4 <-
     tbl = small_table,
     tbl_name = "small_table",
     label = "Workshop agent No. 4"
-  ) %>%
-  col_vals_gt(columns = d, value = 1000) %>%
+  ) |>
+  col_vals_gt(columns = d, value = 1000) |>
   col_vals_between(
     columns = c,
     left = vars(a), right = vars(d), # Using values in columns, not literal vals
     na_pass = TRUE
-  ) %>%
+  ) |>
   interrogate()
 
 agent_4
@@ -336,29 +336,29 @@ agent_4
 Get the sundered data piece that contains only rows that passed both validation steps (this is the default piece). This yields 5 of 13 total rows.
 
 ```{r paged.print=FALSE}
-agent_4 %>% get_sundered_data()
+agent_4 |> get_sundered_data()
 ```
 
 Get the complementary data piece: all of those rows that failed either of the two validation steps. This yields 8 of 13 total rows.
 
 ```{r paged.print=FALSE}
-agent_4 %>% get_sundered_data(type = "fail")
+agent_4 |> get_sundered_data(type = "fail")
 ```
 
 We can get all of the input data returned with a flag column (called `.pb_combined`). This is done by using `type = "combined"` and that rightmost column will contain `"pass"` and `"fail"` values.
 
 ```{r paged.print=FALSE}
-agent_4 %>% get_sundered_data(type = "combined")
+agent_4 |> get_sundered_data(type = "combined")
 ```
 
 The labels can be changed and this is flexible:
 
 ```{r paged.print=FALSE}
-agent_4 %>% get_sundered_data(type = "combined", pass_fail = c(TRUE, FALSE))
+agent_4 |> get_sundered_data(type = "combined", pass_fail = c(TRUE, FALSE))
 ```
 
 ```{r paged.print=FALSE}
-agent_4 %>% get_sundered_data(type = "combined", pass_fail = 0:1)
+agent_4 |> get_sundered_data(type = "combined", pass_fail = 0:1)
 ```
 
 ### Accessing the plan/interrogation data with `get_agent_x_list()`
@@ -371,7 +371,7 @@ Let's obtain such a list from `agent_3`, which had 10 validation steps:
 
 ```{r paged.print=FALSE}
 # Generate the `x_list` object from `agent_3`
-x_list_3 <- agent_3 %>% get_agent_x_list()
+x_list_3 <- agent_3 |> get_agent_x_list()
 
 # Printing this gives us a console preview
 # of which components are available
@@ -417,7 +417,7 @@ We can choose to email the report if the `notify` state is entered. The message 
 
 if (any(x_list_3$notify)) {
 
-  email_create(agent_3) %>%
+  email_create(agent_3) |>
     blastula::smtp_send(
       from = "sender@email.com",
       to = "recipient@email.com",
@@ -437,25 +437,25 @@ We don't have to fully accept the defaults for a data validation report. Using `
 Here's how you can change the title:
 
 ```{r}
-agent_3 %>% get_agent_report(title = "The **3rd** Example")
+agent_3 |> get_agent_report(title = "The **3rd** Example")
 ```
 
 You can bring the steps that had serious failures up to the top:
 
 ```{r}
-agent_3 %>% get_agent_report(arrange_by = "severity")
+agent_3 |> get_agent_report(arrange_by = "severity")
 ```
 
 You can remove those steps that had no failures:
 
 ```{r}
-agent_3 %>% get_agent_report(arrange_by = "severity", keep = "fail_states")
+agent_3 |> get_agent_report(arrange_by = "severity", keep = "fail_states")
 ```
 
 You can change the language of the report:
 
 ```{r}
-agent_3 %>% get_agent_report(lang = "de")
+agent_3 |> get_agent_report(lang = "de")
 ```
 
 ------

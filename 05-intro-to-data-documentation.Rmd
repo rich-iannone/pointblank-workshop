@@ -53,14 +53,14 @@ informant <-
     tbl = small_table,
     tbl_name = "small_table",
     label = "Example No. 2"
-  ) %>%
+  ) |>
   info_tabular(
     description = "This table is included in the **pointblank** pkg."
-  ) %>%
+  ) |>
   info_columns(
     columns = "date_time",
     info = "This column is full of timestamps."
-  ) %>%
+  ) |>
   info_section(
     section_name = "further information", 
     `examples and documentation` = "Examples for how to use the `info_*()` functions
@@ -84,7 +84,7 @@ info_tabular(description = "This table is included in the **pointblank** pkg.")
 was used to make the *DESCRIPTION* subsection (all section titles are automatically capitalized). We can define as many subsections to the *TABLE* section as we need, either in the same `info_tabular()` call or across multiple calls.
 
 ```{r}
-informant %>% 
+informant |> 
   info_tabular(Updates = "This table is not regularly updated.")
 ```
 
@@ -110,40 +110,40 @@ informant_pp <-
     tbl = palmerpenguins::penguins,
     tbl_name = "penguins",
     label = "The `penguins` dataset from the **palmerpenguins** pkg."
-  ) %>% 
+  ) |> 
   info_columns(
     columns = "species",
     info = "A factor denoting penguin species (*Adélie*, *Chinstrap*, and *Gentoo*)."
-  ) %>%
+  ) |>
   info_columns(
     columns = "island",
     info = "A factor denoting island in Palmer Archipelago, Antarctica
     (*Biscoe*, *Dream*, or *Torgersen*)."
-  ) %>%
+  ) |>
   info_columns(
     columns = "bill_length_mm",
     info = "A number denoting bill length"
-  ) %>%
+  ) |>
   info_columns(
     columns = "bill_depth_mm",
     info = "A number denoting bill depth"
-  ) %>%
+  ) |>
   info_columns(
     columns = "flipper_length_mm",
     info = "An integer denoting flipper length"
-  ) %>%
+  ) |>
   info_columns(
     columns = ends_with("mm"),
     info = "(in units of millimeters)."
-  ) %>%
+  ) |>
   info_columns(
     columns = "body_mass_g",
     info = "An integer denoting body mass (grams)."
-  ) %>%
+  ) |>
   info_columns(
     columns = "sex",
     info = "A factor denoting penguin sex (`\"female\"`, `\"male\"`)."
-  ) %>%
+  ) |>
   info_columns(
     columns = "year",
     info = "The study year (e.g., `2007`, `2008`, `2009`)."
@@ -168,7 +168,7 @@ Any information that doesn't fit in the *TABLE* or *COLUMNS* sections can be pla
 
 ```{r}
 informant_pp <- 
-  informant_pp %>%
+  informant_pp |>
   info_section(
     section_name = "source",
     References = c(
@@ -217,7 +217,7 @@ With `get_informant_report()`, it's possible to alter the title of the informati
 
 ```{r}
 informant_report <-
-  informant_pp %>%
+  informant_pp |>
   get_informant_report(size = "600px", title = ":tbl_name:")
 
 informant_report

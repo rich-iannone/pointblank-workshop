@@ -30,21 +30,21 @@ agent <-
       stop_at = 0.25,
       notify_at = 0.35
     )
-  ) %>%
-  col_exists(columns = vars(date, date_time)) %>%
+  ) |>
+  col_exists(columns = vars(date, date_time)) |>
   col_vals_regex(
     columns = b,
     regex = "[0-9]-[a-z]{3}-[0-9]{3}"
-  ) %>%
-  rows_distinct() %>%
-  col_vals_gt(columns = d, value = 100) %>%
-  col_vals_lte(columns = c, value = 5) %>%
+  ) |>
+  rows_distinct() |>
+  col_vals_gt(columns = d, value = 100) |>
+  col_vals_lte(columns = c, value = 5) |>
   interrogate()
 
 # Save the agent to disk with `x_write_disk()`; append the date
 x_write_disk(
   agent,
-  filename = affix_date("agent-small_table"),
+  filename = affix_date(filename = "agent-small_table"),
   path = "small_table_tests"
 )
 ```

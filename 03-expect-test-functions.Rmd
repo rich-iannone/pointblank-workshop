@@ -47,7 +47,7 @@ Let's use the `game_revenue` dataset from the **pointblank** package in this two
 ```{r eval=FALSE}
 draft_validation(
   tbl = ~ pointblank::game_revenue,
-  file_name = "game_revenue-validation"
+  filename = "game_revenue-validation"
 )
 ```
 
