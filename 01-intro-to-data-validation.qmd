@@ -12,8 +12,6 @@ library(blastula)
 library(palmerpenguins)
 ```
 
-## Intro
-
 A common workflow for data validation in **pointblank** involves three basic components:
 
 - the creation of an 'agent' (this is the main data collection and reporting object)
@@ -29,7 +27,7 @@ agent <-
   interrogate()
 ```
 
-### A simple data validation on a small dataset called `small_table`
+## A simple data validation on a small dataset called `small_table`
 
 The package contains a few datasets. A really small one for experimentation is called `small_table`:
 
@@ -75,7 +73,11 @@ agent_1 <- agent_1 |> interrogate()
 agent_1
 ```
 
-Now, we see a validation report we can use! Let's go over each of the columns and understand what they mean.
+Now, we see a validation report we can use. It contains information about each validation step and how many test units passed or failed.
+
+## Understanding the validation report
+
+Let's go over each of the columns and understand what they mean.
 
 - `STEP`: the name of the validation function used for the validation step and
 the step number.
@@ -227,9 +229,18 @@ There are 36 validation functions. Here they are:
 - `serially()`
 - `specially()`
 
-It's a lot to keep track of but they all try to use a consistent interface. Let's break this down.
+It's a lot to keep track of but they all try to use a consistent interface. 
 
-The `col_vals_*()` group will check individual cells within one or more columns. Aside from using an 'agent', we can use the validation functions *directly* on the data. It acts as a sort of validation 'filter'; data will pass through unchanged if validation passes, error if validation doesn't pass. Let's try that with `col_vals_between()`:
+- the `col_vals_*()` group will check individual cells within one or more columns
+- the `rows_*()` group will check entire rows (this can be narrowed down with the `columns` argument)
+- the `col_is_*()` group will check whether a column is of a certain type
+- the `*_match()` functions validate whether some aspect of the table as a whole matches an expectation
+- the `col_exists()` function checks whether certain columns exist in the table
+- the `conjointly()`, `serially()`, and `specially()` functions are for more advanced validation needs
+
+## Using validation functions directly on the data
+
+Aside from using an 'agent', we can use the validation functions *directly* on the data. It acts as a sort of validation 'filter'; data will pass through unchanged if validation passes, error if validation doesn't pass. Let's try that with `col_vals_between()`:
 
 ```{r}
 small_table |> col_vals_between(columns = a, left = 0, right = 10)
@@ -276,7 +287,7 @@ small_table |> rows_complete()
 ```
 
 ```{r}
-small_table |> rows_complete(columns = vars(date_time, date, a, b))
+small_table |> rows_complete(columns = c(date_time, date, a, b))
 ```
 
 The `*_match()` functions validate whether some aspect of the table as a whole matches an expectation.
@@ -286,19 +297,23 @@ The `*_match()` functions validate whether some aspect of the table as a whole m
 - `col_count_match()`  - tbl col count matching (with another tbl or fixed value)
 - `tbl_match()`        - does the target table match a comparison table?
 
-Here are two (passing) examples:
+`row_count_match()`:
 
 ```{r}
 small_table |> row_count_match(count = 13)
 ```
 
+`col_count_match()`:
+
 ```{r}
 small_table |> col_count_match(count = palmerpenguins::penguins)
 ```
 
+We supplied a table to match the column count against. It just so happens that the `palmerpenguins::penguins` dataset has the same number of columns as `small_table`.
+
 ### Getting data extracts for failed rows from the 'agent'
 
-Those CSV buttons in the validation report are useful for sharing the report with others since they don't even need to know R to obtain those extracts. For the person familiar with R and **pointblank**, it is possible to get data frames for the failed rows (per validation step).
+Those CSV buttons in the validation report are useful for sharing the report with others since they don't even need to know pointblank or even R to obtain those extracts. For the person familiar with R and **pointblank**, it is possible to get data frames for the failed rows (per validation step).
 
 We can use the `get_data_extracts()` function to obtain a list of data frames, or, use the `i` argument to get a data frame available for a specific step. Not all steps will have associated data frames. Also, not all validation functions will produce data frames here (they need to check values in columns).
 
