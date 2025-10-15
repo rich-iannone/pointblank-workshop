@@ -1,5 +1,5 @@
 ---
-title: "Scan Your Data"
+title: "Scanning Data, Drafting Validation Plans"
 format: html
 ---
 
