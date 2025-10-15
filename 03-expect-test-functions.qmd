@@ -34,7 +34,9 @@ expect_col_vals_between(small_table, columns = c, 0, 10, na_pass = TRUE)
 
 When running this, nothing is returned. The default threshold for error is one test unit (can be changed with the `threshold` argument). If there is an error, that is reported in the console.
 
-```{r, error=TRUE}
+```{r}
+#| error: true
+
 expect_col_vals_between(small_table, columns = c, 0, 7, na_pass = TRUE)
 ```
 
@@ -78,7 +80,9 @@ if (!test_col_vals_not_null(small_table, columns = date_time)) {
 
 This one does result in an error:
 
-```{r error=TRUE}
+```{r}
+#| error: true
+
 if (
   !test_col_vals_increasing(small_table, date, allow_stationary = TRUE) ||
   !test_col_vals_gt(small_table, a, 1)
