@@ -394,7 +394,6 @@ The x-list can be constrained to a particular validation step (by supplying the 
 Let's obtain such a list from `agent_3`, which had 10 validation steps:
 
 ```{r}
-
 # Generate the `x_list` object from `agent_3`
 x_list_3 <- agent_3 |> get_agent_x_list()
 
@@ -438,7 +437,7 @@ dplyr::tibble(
 
 We can choose to email the report if the `notify` state is entered. The message can be created with the agent through the `email_create()` function. Here's a useful bit of code that allows for conditional sending.
 
-```{r}
+```r
 #| eval: false
 
 if (any(x_list_3$notify)) {
@@ -455,6 +454,12 @@ if (any(x_list_3$notify)) {
 Such code might be useful during an automated process where data is periodically checked and failures beyond thresholds require notification.
 
 While `email_create()` will generate the email message body, functions in the **blastula** package are responsible for the sending of that email. For more information on sending HTML email, look at the help article found by using `?blastula::smtp_send`.
+
+We can view what the email will look like by using `email_create()` and printing the result.
+
+```{r}
+agent_3 |> email_create()
+```
 
 ### Customizing the interrogation report with `get_agent_report()`
 
