@@ -9,7 +9,7 @@ Each module of the workshop focuses on a different subset of functions and they 
 
 - `"01-intro-to-data-validation.qmd"` (The `agent`, validation fns, interrogation/reports)
 
-- `"02-scan-your-data.qmd"` (Looking at your data with `scan_data()`)
+- `"02-scan-draft-data.qmd"` (Looking at your data with `scan_data()`; using `draft_validation()`)
 
 - `"03-expect-test-functions.qmd"` (Using the `expect_*()` and `test_*()` functions)
 
