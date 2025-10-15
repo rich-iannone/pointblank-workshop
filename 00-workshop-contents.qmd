@@ -3,7 +3,11 @@ title: "Workshop Contents"
 format: html
 ---
 
-This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package. The workshop modules will introduce you to a large variety of examples to get you well-acquainted with the basic functionality of the package.
+This **pointblank** workshop will teach you what the package can do. The six modules will introduce you to a large variety of examples to get you well-acquainted with the basics of data validation and data documentation.
+
+The repo for this workshop is available at:
+
+https://github.com/rich-iannone/pointblank-workshop
 
 Each module of the workshop focuses on a different subset of functions and they are all presented here as **Quarto** (.qmd) files, with one file for each workshop module:
 
@@ -21,7 +25,7 @@ Each module of the workshop focuses on a different subset of functions and they 
 
 You can navigate to any of these and modify the code within the self-contained code cells. All of the .qmd files can be rendered to HTML.
 
-### The **pointblank** Installation
+### Installation
 
 You can install **pointblank** on your system by using `install.packages()`:
 
