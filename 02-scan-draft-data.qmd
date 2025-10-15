@@ -85,7 +85,7 @@ export_report(
 )
 ```
 
-### Drafting a nice, new validation plan with `draft_validation()`
+### Drafting a new validation plan with `draft_validation()`
 
 We can generate a draft validation plan in a new `.R` file using an input data table (just like with `scan_data()`). With `draft_validation()` the data table will be scanned to learn about its column data and a set of starter validation steps (constituting a validation plan) will be written.
 
