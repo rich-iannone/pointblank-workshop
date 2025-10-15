@@ -29,7 +29,7 @@ The `scan_data()` function is available for providing an interactive overview of
 - `Missing Values`: A summary figure that shows the degree of missingness across variables
 - `Sample`: A table that provides the head and tail rows of the dataset
 
-The output HTML report will appear in the RStudio Viewer and can also be integrated in R Markdown or Quarto HTML output. Here’s an example that uses the `penguins_raw` dataset from the **palmerpenguins** package.
+The output HTML report will appear in the RStudio Viewer and can also be integrated in Quarto HTML output. Here’s an example that uses the `penguins_raw` dataset from the **palmerpenguins** package.
 
 ```{r}
 scan_data(tbl = palmerpenguins::penguins_raw, sections = "OVMS")
