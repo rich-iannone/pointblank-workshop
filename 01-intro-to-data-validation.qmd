@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Data Validation, pointblank Style"
+title: "Introduction to Data Validation"
 format: html
 ---
 
