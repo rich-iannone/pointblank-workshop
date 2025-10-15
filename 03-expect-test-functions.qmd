@@ -40,7 +40,7 @@ When running this, nothing is returned. The default threshold for error is one t
 expect_col_vals_between(small_table, columns = c, 0, 7, na_pass = TRUE)
 ```
 
-There are 36 `expect_*()` functions, which is a lot. It's actually somewhat overwhelming at first. If you wanted to test your dataset in the **testthat** framework, a nice beginning approach might be to take the dataset and do two things in sequence:
+There are 36 `expect_*()` functions. If you wanted to test your dataset in the **testthat** framework, a nice beginning approach might be to take the dataset and do two things in sequence:
 
 - use the `draft_validation()` function to generate a validation plan with the dataset as the primary input
 - use the `write_testthat_file()` function to create a **testthat** .R file using the agent from the `draft_validation()` file
