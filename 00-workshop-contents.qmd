@@ -1,0 +1,30 @@
+---
+title: "Workshop Contents"
+format: html
+---
+
+This **pointblank** workshop will teach you *a lot* about what **pointblank** can do, and, it'll give you an opportunity to experiment with the package. The workshop modules will introduce you to a large variety of examples to get you well-acquainted with the basic functionality of the package.
+
+Each module of the workshop focuses on a different subset of functions and they are all presented here as **Quarto** (.qmd) files, with one file for each workshop module:
+
+- `"01-intro-to-data-validation.qmd"` (The `agent`, validation fns, interrogation/reports)
+
+- `"02-scan-your-data.qmd"` (Looking at your data with `scan_data()`)
+
+- `"03-expect-test-functions.qmd"` (Using the `expect_*()` and `test_*()` functions)
+
+- `"04-scaling-up-data-validation.qmd"` (The `multiagent` and its reporting structures)
+
+- `"05-intro-to-data-documentation.qmd"` (The `informant` and describing your data)
+
+- `"06-getting-deeper-into-documenting-data.qmd"` (Using snippets and text tricks)
+
+You can navigate to any of these and modify the code within the self-contained code cells. All of the .qmd files can be rendered to HTML.
+
+### The **pointblank** Installation
+
+You can install **pointblank** on your system by using `install.packages()`:
+
+```{r eval=FALSE}
+# install.packages("pointblank")
+```

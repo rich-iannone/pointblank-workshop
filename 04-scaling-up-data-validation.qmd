@@ -1,10 +1,11 @@
 ---
 title: "Scaling up Data Validation with the Multiagent"
-output: html_document
+format: html
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
+
 library(pointblank)
 library(tidyverse)
 ```
@@ -17,7 +18,8 @@ If your data quality process involves more data validation runs and you have a l
 
 The `x_write_disk()` function lets you write a **pointblank** agent to disk. This is very useful if you want to continually save the interrogation results as part of a larger data quality process. Here's an example where the agent is saved to disk with the date as part of the filename.
 
-```{r eval=FALSE}
+```{r}
+#| eval: false
 
 # Create the agent, develop a validation plan, interrogate
 agent <-

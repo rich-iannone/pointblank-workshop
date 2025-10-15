@@ -1,10 +1,11 @@
 ---
 title: "Introduction to Data Documentation"
-output: html_document
+format: html
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
+
 library(pointblank)
 library(tidyverse)
 ```
@@ -17,7 +18,7 @@ A good thing to do often is to document our datasets. We can do this in **pointb
 
 Let's document the `small_table` dataset that's available in **pointblank**. Here's the table once again:
 
-```{r paged.print=FALSE}
+```{r}
 pointblank::small_table
 ```
 
@@ -225,7 +226,8 @@ informant_report
 
 Given that this report looks really good, it can be published in a variety of ways (e.g., Connect, Quarto Pub, etc.), and, you can export to a standalone HTML file with `export_report()`.
 
-```{r eval=FALSE}
+```{r}
+#| eval: false
 export_report(informant_report, filename = "informant-penguins.html")
 ```
 

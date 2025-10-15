@@ -1,10 +1,11 @@
 ---
 title: "Getting Deeper Into Documenting Data"
-output: html_document
+format: html
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
+
 library(pointblank)
 library(tidyverse)
 ```
@@ -23,14 +24,14 @@ A great source of information about the table can be the table itself. Suppose y
 
 This can all be done with the `info_snippet()` function. You give the snippet a name and you give it a function call. Let’s do this for the `small_table` dataset available in pointblank. Again, this is what that table looks like:
 
-```{r paged.print=FALSE}
+```{r}
 pointblank::small_table
 ```
 
 If you wanted the mean value of data in column `d` rounded to one decimal place, one such way we could do it is with this expression:
 
 ```{r}
-small_table %>% .$d %>% mean() %>% round(1)
+small_table$d |> mean() |> round(1)
 ```
 
 Inside of an `info_snippet()` call, which is used after creating the informant object, the expression would look like this:
@@ -255,7 +256,7 @@ We can take portions of text and present them as labels. These will help you cal
 
 ```{r}
 informant_pp <-
-  informant_pp %>%
+  informant_pp |>
   info_columns(
     columns = vars(body_mass_g), 
     info = "An integer denoting body mass."

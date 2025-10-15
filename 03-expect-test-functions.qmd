@@ -1,10 +1,11 @@
 ---
 title: "Using the `expect_*()` and `test_*()` Functions"
-output: html_document
+format: html
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
+
 library(pointblank)
 library(tidyverse)
 ```
@@ -13,7 +14,7 @@ library(tidyverse)
 
 Those validation functions used previously with an agent have two sets of variants, taking the forms `expect_*()` and `test_*()`.
 
-The 'expect' prefix indicates that those functions are to be used in a **testthat** unit testing workflow. The 'test' prefix indicates that that set of functions produce logical outputs (`TRUE`/`FALSE`), making them suitable for programming.
+The `expect_` prefix indicates that those functions are to be used in a **testthat** unit testing workflow. The 'test' prefix indicates that that set of functions produce logical outputs (`TRUE`/`FALSE`), making them suitable for programming.
 
 ### Using the **pointblank** expectation functions
 
@@ -44,7 +45,9 @@ There are 36 `expect_*()` functions, which is a lot. It's actually somewhat over
 
 Let's use the `game_revenue` dataset from the **pointblank** package in this two-step workflow.
 
-```{r eval=FALSE}
+```{r}
+#| eval: false
+
 draft_validation(
   tbl = ~ pointblank::game_revenue,
   filename = "game_revenue-validation"
@@ -53,7 +56,9 @@ draft_validation(
 
 Going into the `"game_revenue-validation.R"` file, the following line was added to the bottom:
 
-```{r eval=FALSE}
+```{r}
+#| eval: false
+
 write_testthat_file(agent = agent, name = "game_revenue", path = ".")
 ```
 

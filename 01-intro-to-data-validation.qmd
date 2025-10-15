@@ -1,10 +1,11 @@
 ---
 title: "Introduction to Data Validation, pointblank Style"
-output: html_document
+format: html
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
+
 library(pointblank)
 library(tidyverse)
 library(blastula)
@@ -32,7 +33,7 @@ agent <-
 
 The package contains a few datasets. A really small one for experimentation is called `small_table`:
 
-```{r paged.print=FALSE}
+```{r}
 pointblank::small_table
 ```
 
@@ -230,21 +231,25 @@ It's a lot to keep track of but they all try to use a consistent interface. Let'
 
 The `col_vals_*()` group will check individual cells within one or more columns. Aside from using an 'agent', we can use the validation functions *directly* on the data. It acts as a sort of validation 'filter'; data will pass through unchanged if validation passes, error if validation doesn't pass. Let's try that with `col_vals_between()`:
 
-```{r paged.print=FALSE}
+```{r}
 small_table |> col_vals_between(columns = a, left = 0, right = 10)
 ```
 
-```{r error=TRUE}
+```{r}
+#| error: true
+
 small_table |> col_vals_between(columns = a, left = 5, right = 10)
 ```
 
 The `col_is_*()` group will check whether a column is of a certain type. Let's look at two cases: one passing and the other failing.
 
-```{r paged.print=FALSE}
+```{r}
 small_table |> col_is_character(columns = b)
 ```
 
-```{r error=TRUE}
+```{r}
+#| error: true
+
 small_table |> col_is_numeric(columns = date)
 ```
 
@@ -252,21 +257,25 @@ The two `rows_*()` functions (`rows_distinct()` and `rows_complete()`) will chec
 
 `rows_distinct()`:
 
-```{r error=TRUE}
+```{r}
+#| error: true
+
 small_table |> rows_distinct()
 ```
 
-```{r paged.print=FALSE}
+```{r}
 head(small_table) |> rows_distinct()
 ```
 
 `rows_complete()`:
 
 ```{r error=TRUE}
+#| error: true
+
 small_table |> rows_complete()
 ```
 
-```{r paged.print=FALSE}
+```{r}
 small_table |> rows_complete(columns = vars(date_time, date, a, b))
 ```
 
@@ -279,11 +288,11 @@ The `*_match()` functions validate whether some aspect of the table as a whole m
 
 Here are two (passing) examples:
 
-```{r paged.print=FALSE}
+```{r}
 small_table |> row_count_match(count = 13)
 ```
 
-```{r paged.print=FALSE}
+```{r}
 small_table |> col_count_match(count = palmerpenguins::penguins)
 ```
 
@@ -295,13 +304,13 @@ We can use the `get_data_extracts()` function to obtain a list of data frames, o
 
 Let's use `get_data_extracts()` on `agent_3`.
 
-```{r paged.print=FALSE}
+```{r}
 get_data_extracts(agent = agent_3)
 ```
 
 The list components are named for the validation steps that have data extracts (i.e., filtered rows where test unit failures occurred). Let's get an individual data extract from step `9` (the `col_vals_in_set()` step, which looked at column `f`):
 
-```{r paged.print=FALSE}
+```{r}
 get_data_extracts(agent = agent_3, i = 9)
 ```
 
@@ -335,29 +344,29 @@ agent_4
 
 Get the sundered data piece that contains only rows that passed both validation steps (this is the default piece). This yields 5 of 13 total rows.
 
-```{r paged.print=FALSE}
+```{r}
 agent_4 |> get_sundered_data()
 ```
 
 Get the complementary data piece: all of those rows that failed either of the two validation steps. This yields 8 of 13 total rows.
 
-```{r paged.print=FALSE}
+```{r}
 agent_4 |> get_sundered_data(type = "fail")
 ```
 
 We can get all of the input data returned with a flag column (called `.pb_combined`). This is done by using `type = "combined"` and that rightmost column will contain `"pass"` and `"fail"` values.
 
-```{r paged.print=FALSE}
+```{r}
 agent_4 |> get_sundered_data(type = "combined")
 ```
 
 The labels can be changed and this is flexible:
 
-```{r paged.print=FALSE}
+```{r}
 agent_4 |> get_sundered_data(type = "combined", pass_fail = c(TRUE, FALSE))
 ```
 
-```{r paged.print=FALSE}
+```{r}
 agent_4 |> get_sundered_data(type = "combined", pass_fail = 0:1)
 ```
 
@@ -369,7 +378,8 @@ The x-list can be constrained to a particular validation step (by supplying the 
 
 Let's obtain such a list from `agent_3`, which had 10 validation steps:
 
-```{r paged.print=FALSE}
+```{r}
+
 # Generate the `x_list` object from `agent_3`
 x_list_3 <- agent_3 |> get_agent_x_list()
 
@@ -400,7 +410,7 @@ x_list_3$f_passed
 
 The `warn`, `stop`, and `notify` states. We can arrange that in a tibble and use the step numbers (`i`) as well.
 
-```{r  paged.print=FALSE}
+```{r}
 dplyr::tibble(
   step   = x_list_3$i,
   warn   = x_list_3$warn,
@@ -413,7 +423,8 @@ dplyr::tibble(
 
 We can choose to email the report if the `notify` state is entered. The message can be created with the agent through the `email_create()` function. Here's a useful bit of code that allows for conditional sending.
 
-```{r eval=FALSE}
+```{r}
+#| eval: false
 
 if (any(x_list_3$notify)) {
 
